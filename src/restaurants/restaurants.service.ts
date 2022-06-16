@@ -27,4 +27,11 @@ export class RestaurantsService {
 
     return restaurant;
   }
+
+  async updateById(id: string, restaurant: Restaurant): Promise<Restaurant> {
+    return await this.restaurantModel.findByIdAndUpdate(id, restaurant, {
+      new: true,
+      runValidators: true,
+    });
+  }
 }
