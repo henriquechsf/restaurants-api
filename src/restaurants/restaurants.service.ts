@@ -34,4 +34,8 @@ export class RestaurantsService {
       runValidators: true,
     });
   }
+
+  async deleteById(id: string): Promise<Restaurant> {
+    return await this.restaurantModel.findByIdAndDelete(id);
+  }
 }
