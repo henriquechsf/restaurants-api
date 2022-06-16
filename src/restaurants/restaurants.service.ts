@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Query } from 'express-serve-static-core';
 import mongoose from 'mongoose';
@@ -36,6 +40,8 @@ export class RestaurantsService {
   }
 
   async findById(id: string): Promise<Restaurant> {
+    this.validateObjectId(id);
+
     const restaurant = await this.restaurantModel.findById(id);
 
     if (!restaurant) {
@@ -46,6 +52,8 @@ export class RestaurantsService {
   }
 
   async updateById(id: string, restaurant: Restaurant): Promise<Restaurant> {
+    this.validateObjectId(id);
+
     return await this.restaurantModel.findByIdAndUpdate(id, restaurant, {
       new: true,
       runValidators: true,
@@ -53,6 +61,18 @@ export class RestaurantsService {
   }
 
   async deleteById(id: string): Promise<Restaurant> {
+    this.validateObjectId(id);
+
     return await this.restaurantModel.findByIdAndDelete(id);
+  }
+
+  private validateObjectId(id: string): void {
+    const isValidId = mongoose.isValidObjectId(id);
+
+    if (!isValidId) {
+      throw new BadRequestException(
+        'Wrong mongoose ID Error. Please enter correct ID.',
+      );
+    }
   }
 }
