@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Query } from 'express-serve-static-core';
 import mongoose from 'mongoose';
 import { Restaurant } from './schemas/restaurant.schema';
 
@@ -10,8 +11,17 @@ export class RestaurantsService {
     private restaurantModel: mongoose.Model<Restaurant>,
   ) {}
 
-  async findAll(): Promise<Restaurant[]> {
-    return await this.restaurantModel.find();
+  async findAll(query: Query): Promise<Restaurant[]> {
+    const keyword = query.keyword
+      ? {
+          name: {
+            $regex: query.keyword,
+            $options: 'i',
+          },
+        }
+      : {};
+
+    return await this.restaurantModel.find({ ...keyword });
   }
 
   async create(restaurant: Restaurant): Promise<Restaurant> {
