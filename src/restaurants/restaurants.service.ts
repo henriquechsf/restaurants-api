@@ -82,4 +82,11 @@ export class RestaurantsService {
       );
     }
   }
+
+  async uploadImages(id, files) {
+    const images = await APIFeatures.upload(files);
+
+    console.log(images);
+    return images;
+  }
 }
