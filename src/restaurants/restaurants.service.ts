@@ -73,6 +73,25 @@ export class RestaurantsService {
     return await this.restaurantModel.findByIdAndDelete(id);
   }
 
+  async uploadImages(id, files) {
+    this.validateObjectId(id);
+
+    const images = await APIFeatures.upload(files);
+
+    const restaurant = await this.restaurantModel.findByIdAndUpdate(
+      id,
+      {
+        images: images as Object[],
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    return restaurant;
+  }
+
   private validateObjectId(id: string): void {
     const isValidId = mongoose.isValidObjectId(id);
 
@@ -81,12 +100,5 @@ export class RestaurantsService {
         'Wrong mongoose ID Error. Please enter correct ID.',
       );
     }
-  }
-
-  async uploadImages(id, files) {
-    const images = await APIFeatures.upload(files);
-
-    console.log(images);
-    return images;
   }
 }
