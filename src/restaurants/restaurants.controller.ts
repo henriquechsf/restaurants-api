@@ -51,14 +51,29 @@ export class RestaurantsController {
   async deleteRestaurant(
     @Param('id') id: string,
   ): Promise<{ deleted: boolean }> {
-    await this.restaurantsService.findById(id);
-    const restaurant = this.restaurantsService.deleteById(id);
+    const restaurant = await this.restaurantsService.findById(id);
 
-    if (restaurant) {
+    const imageDeteled = await this.restaurantsService.deleteImages(
+      restaurant.images,
+    );
+
+    if (!imageDeteled) {
       return {
-        deleted: true,
+        deleted: false,
       };
     }
+
+    const restaurantDeleted = this.restaurantsService.deleteById(id);
+
+    if (!restaurantDeleted) {
+      return {
+        deleted: false,
+      };
+    }
+
+    return {
+      deleted: false,
+    };
   }
 
   @Put('upload/:id')
