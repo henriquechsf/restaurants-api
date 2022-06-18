@@ -35,7 +35,6 @@ export class RestaurantsController {
     @Query() query: ExpressQuery,
     @CurrentUser() user: User,
   ): Promise<Restaurant[]> {
-    console.log(user);
     return this.restaurantsService.findAll(query);
   }
 
