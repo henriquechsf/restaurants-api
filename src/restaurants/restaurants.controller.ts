@@ -13,7 +13,9 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { User } from 'aws-sdk/clients/budgets';
 import { Query as ExpressQuery } from 'express-serve-static-core';
+import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { CreateRestaurantDTO } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDTO } from './dto/update-restaurant.dto';
 import { RestaurantsService } from './restaurants.service';
@@ -25,7 +27,11 @@ export class RestaurantsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  async getAllRestaurants(@Query() query: ExpressQuery): Promise<Restaurant[]> {
+  async getAllRestaurants(
+    @Query() query: ExpressQuery,
+    @CurrentUser() user: User,
+  ): Promise<Restaurant[]> {
+    console.log(user);
     return this.restaurantsService.findAll(query);
   }
 
