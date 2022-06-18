@@ -1,4 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { User } from 'aws-sdk/clients/budgets';
+import mongoose from 'mongoose';
 
 export enum Category {
   FAST_FOOD = 'Fast food',
@@ -46,6 +48,9 @@ export class Restaurant {
 
   @Prop({ type: Object, ref: 'Location' })
   location?: Location;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: User;
 }
 
 export const RestarurantSchema = SchemaFactory.createForClass(Restaurant);

@@ -13,9 +13,9 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { User } from 'aws-sdk/clients/budgets';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { User } from 'src/auth/schemas/user.schema';
 import { CreateRestaurantDTO } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDTO } from './dto/update-restaurant.dto';
 import { RestaurantsService } from './restaurants.service';
@@ -39,8 +39,9 @@ export class RestaurantsController {
   @Post()
   async createRestaurant(
     @Body() restaurant: CreateRestaurantDTO,
+    @CurrentUser() user: User,
   ): Promise<Restaurant> {
-    return this.restaurantsService.create(restaurant);
+    return this.restaurantsService.create(restaurant, user);
   }
 
   @UseGuards(AuthGuard('jwt'))
