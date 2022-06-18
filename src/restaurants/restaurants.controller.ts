@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Post,
@@ -60,10 +61,16 @@ export class RestaurantsController {
   @Roles('admin')
   async updateRestaurant(
     @Param('id') id: string,
-    @Body() restaurant: UpdateRestaurantDTO,
+    @Body() updateRestaurantDto: UpdateRestaurantDTO,
+    @CurrentUser() user: User,
   ): Promise<Restaurant> {
-    await this.restaurantsService.findById(id);
-    return this.restaurantsService.updateById(id, restaurant);
+    const foundRestaurant = await this.restaurantsService.findById(id);
+
+    if (foundRestaurant.user.toString() !== user.id.toString()) {
+      throw new ForbiddenException('You can not update this restaurant.');
+    }
+
+    return this.restaurantsService.updateById(id, updateRestaurantDto);
   }
 
   @Delete('/:id')
@@ -71,8 +78,13 @@ export class RestaurantsController {
   @Roles('admin')
   async deleteRestaurant(
     @Param('id') id: string,
+    @CurrentUser() user: User,
   ): Promise<{ deleted: boolean }> {
     const restaurant = await this.restaurantsService.findById(id);
+
+    if (restaurant.user.toString() !== user.id.toString()) {
+      throw new ForbiddenException('You can not update this restaurant.');
+    }
 
     const imageDeteled = await this.restaurantsService.deleteImages(
       restaurant.images,
@@ -104,8 +116,13 @@ export class RestaurantsController {
   async uploadFiles(
     @Param('id') id: string,
     @UploadedFiles() files: Array<Express.Multer.File>,
+    @CurrentUser() user: User,
   ) {
-    await this.restaurantsService.findById(id);
+    const restaurant = await this.restaurantsService.findById(id);
+
+    if (restaurant.user.toString() !== user.id.toString()) {
+      throw new ForbiddenException('You can not update this restaurant.');
+    }
 
     return await this.restaurantsService.uploadImages(id, files);
   }
