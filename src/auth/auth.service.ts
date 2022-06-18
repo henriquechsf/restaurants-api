@@ -9,15 +9,18 @@ import { SignUpDTO } from './dto/signup.dto';
 import { User } from './schemas/user.schema';
 import * as bcrypt from 'bcryptjs';
 import { LoginDTO } from './dto/login.dto';
+import APIFeatures from 'src/utils/apiFeatures.utils';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<User>,
+    private jwtService: JwtService,
   ) {}
 
-  async signUp(signUpDTO: SignUpDTO): Promise<User> {
+  async signUp(signUpDTO: SignUpDTO): Promise<{ token: string }> {
     const { name, email, password } = signUpDTO;
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,7 +32,9 @@ export class AuthService {
         password: hashedPassword,
       });
 
-      return user;
+      const token = await APIFeatures.assignJwtToken(user._id, this.jwtService);
+
+      return { token };
     } catch (error) {
       if (error.code === 11000) {
         throw new ConflictException('Duplicated email entered.');
@@ -37,7 +42,7 @@ export class AuthService {
     }
   }
 
-  async login(loginDTO: LoginDTO): Promise<User> {
+  async login(loginDTO: LoginDTO): Promise<{ token: string }> {
     const { email, password } = loginDTO;
 
     const user = await this.userModel.findOne({ email }).select('+password');
@@ -52,6 +57,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email address or password');
     }
 
-    return user;
+    const token = await APIFeatures.assignJwtToken(user._id, this.jwtService);
+
+    return { token };
   }
 }
