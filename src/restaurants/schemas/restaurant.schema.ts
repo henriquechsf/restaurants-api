@@ -23,7 +23,7 @@ export class Location {
   country: string;
 }
 
-@Schema()
+@Schema({ timestamps: true })
 export class Restaurant {
   @Prop()
   name: string;
