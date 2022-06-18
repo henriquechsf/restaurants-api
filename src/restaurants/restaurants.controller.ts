@@ -8,8 +8,10 @@ import {
   Put,
   Query,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 import { CreateRestaurantDTO } from './dto/create-restaurant.dto';
@@ -21,11 +23,13 @@ import { Restaurant } from './schemas/restaurant.schema';
 export class RestaurantsController {
   constructor(private restaurantsService: RestaurantsService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   async getAllRestaurants(@Query() query: ExpressQuery): Promise<Restaurant[]> {
     return this.restaurantsService.findAll(query);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   async createRestaurant(
     @Body() restaurant: CreateRestaurantDTO,
@@ -33,11 +37,13 @@ export class RestaurantsController {
     return this.restaurantsService.create(restaurant);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Get('/:id')
   async getRestaurant(@Param('id') id: string): Promise<Restaurant> {
     return this.restaurantsService.findById(id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Put('/:id')
   async updateRestaurant(
     @Param('id') id: string,
@@ -47,6 +53,7 @@ export class RestaurantsController {
     return this.restaurantsService.updateById(id, restaurant);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete('/:id')
   async deleteRestaurant(
     @Param('id') id: string,
@@ -76,6 +83,7 @@ export class RestaurantsController {
     };
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Put('upload/:id')
   @UseInterceptors(FilesInterceptor('files'))
   async uploadFiles(
