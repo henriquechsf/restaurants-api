@@ -15,6 +15,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Query as ExpressQuery } from 'express-serve-static-core';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { User } from 'src/auth/schemas/user.schema';
 import { CreateRestaurantDTO } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDTO } from './dto/update-restaurant.dto';
@@ -25,8 +27,9 @@ import { Restaurant } from './schemas/restaurant.schema';
 export class RestaurantsController {
   constructor(private restaurantsService: RestaurantsService) {}
 
-  @UseGuards(AuthGuard('jwt'))
   @Get()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin', 'user')
   async getAllRestaurants(
     @Query() query: ExpressQuery,
     @CurrentUser() user: User,
@@ -35,8 +38,9 @@ export class RestaurantsController {
     return this.restaurantsService.findAll(query);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Post()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
   async createRestaurant(
     @Body() restaurant: CreateRestaurantDTO,
     @CurrentUser() user: User,
@@ -44,14 +48,16 @@ export class RestaurantsController {
     return this.restaurantsService.create(restaurant, user);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Get('/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin', 'user')
   async getRestaurant(@Param('id') id: string): Promise<Restaurant> {
     return this.restaurantsService.findById(id);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Put('/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
   async updateRestaurant(
     @Param('id') id: string,
     @Body() restaurant: UpdateRestaurantDTO,
@@ -60,8 +66,9 @@ export class RestaurantsController {
     return this.restaurantsService.updateById(id, restaurant);
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Delete('/:id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
   async deleteRestaurant(
     @Param('id') id: string,
   ): Promise<{ deleted: boolean }> {
@@ -90,9 +97,10 @@ export class RestaurantsController {
     };
   }
 
-  @UseGuards(AuthGuard('jwt'))
   @Put('upload/:id')
   @UseInterceptors(FilesInterceptor('files'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
   async uploadFiles(
     @Param('id') id: string,
     @UploadedFiles() files: Array<Express.Multer.File>,
