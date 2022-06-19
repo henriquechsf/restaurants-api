@@ -15,6 +15,11 @@ export class MealController {
     return this.mealService.findAll();
   }
 
+  @Get('/:id')
+  async getMealById(@Param('id') id: string): Promise<Meal> {
+    return this.mealService.findById(id);
+  }
+
   @Get('restaurant/:id')
   async getMealByRestaurant(@Param('id') id: string): Promise<Meal[]> {
     return this.mealService.findByRestaurant(id);

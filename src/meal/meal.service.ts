@@ -1,10 +1,11 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { User } from 'src/auth/schemas/user.schema';
 import { Restaurant } from 'src/restaurants/schemas/restaurant.schema';
 import { Meal } from './schemas/meal.schema';
@@ -47,5 +48,21 @@ export class MealService {
     await restaurant.save();
 
     return mealCreated;
+  }
+
+  async findById(id: string): Promise<Meal> {
+    const isValidId = mongoose.isValidObjectId(id);
+
+    if (!isValidId) {
+      throw new BadRequestException('Wrong mongoose ID error');
+    }
+
+    const meal = await this.mealModel.findById(id);
+
+    if (!meal) {
+      throw new NotFoundException('Meal not found with this ID.');
+    }
+
+    return meal;
   }
 }
