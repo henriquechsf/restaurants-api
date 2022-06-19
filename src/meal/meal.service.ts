@@ -72,4 +72,11 @@ export class MealService {
       runValidators: true,
     });
   }
+
+  async deleteById(id: string): Promise<{ deleted: boolean }> {
+    const res = await this.mealModel.findByIdAndDelete(id);
+
+    if (res) return { deleted: true };
+    return { deleted: false };
+  }
 }
