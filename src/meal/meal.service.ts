@@ -65,4 +65,11 @@ export class MealService {
 
     return meal;
   }
+
+  async updateById(id: string, meal: Meal): Promise<Meal> {
+    return await this.mealModel.findByIdAndUpdate(id, meal, {
+      new: true,
+      runValidators: true,
+    });
+  }
 }
