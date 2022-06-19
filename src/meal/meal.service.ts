@@ -18,6 +18,14 @@ export class MealService {
     private restaurantModel: Model<Restaurant>,
   ) {}
 
+  async findAll(): Promise<Meal[]> {
+    return await this.mealModel.find();
+  }
+
+  async findByRestaurant(id: string): Promise<Meal[]> {
+    return await this.mealModel.find({ restaurant: id });
+  }
+
   async create(meal: Meal, user: User): Promise<Meal> {
     const data = Object.assign(meal, { user: user._id });
 
