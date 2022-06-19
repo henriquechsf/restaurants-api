@@ -6,6 +6,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Query } from 'express-serve-static-core';
 import mongoose from 'mongoose';
+import { User } from 'src/auth/schemas/user.schema';
 import APIFeatures from 'src/utils/apiFeatures.utils';
 import { Restaurant } from './schemas/restaurant.schema';
 
@@ -36,12 +37,12 @@ export class RestaurantsService {
       .skip(skip);
   }
 
-  async create(restaurant: Restaurant): Promise<Restaurant> {
+  async create(restaurant: Restaurant, user: User): Promise<Restaurant> {
     const location = await APIFeatures.getRestaurantLocation(
       restaurant.address,
     );
 
-    const data = Object.assign(restaurant, { location });
+    const data = Object.assign(restaurant, { user: user._id, location });
 
     return await this.restaurantModel.create(data);
   }
@@ -71,6 +72,31 @@ export class RestaurantsService {
     this.validateObjectId(id);
 
     return await this.restaurantModel.findByIdAndDelete(id);
+  }
+
+  async uploadImages(id, files) {
+    this.validateObjectId(id);
+
+    const images = await APIFeatures.upload(files);
+
+    const restaurant = await this.restaurantModel.findByIdAndUpdate(
+      id,
+      {
+        images: images as Object[],
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
+
+    return restaurant;
+  }
+
+  async deleteImages(images) {
+    if (images.length === 0) return true;
+    const res = await APIFeatures.deleteImages(images);
+    return res;
   }
 
   private validateObjectId(id: string): void {

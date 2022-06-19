@@ -1,5 +1,7 @@
+import { User } from 'aws-sdk/clients/budgets';
 import {
   IsEmail,
+  IsEmpty,
   IsEnum,
   IsNotEmpty,
   IsPhoneNumber,
@@ -31,4 +33,7 @@ export class CreateRestaurantDTO {
   @IsEnum(Category, { message: 'Please enter correct category' })
   @IsNotEmpty()
   readonly category: Category;
+
+  @IsEmpty({ message: 'You cannot provide the user ID.' })
+  readonly user: User;
 }
